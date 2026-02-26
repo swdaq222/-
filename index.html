@@ -4,26 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>平台进度查询系统</title>
-    
-    <meta property="og:title" content="平台进度查询系统">
-    <meta property="og:description" content="实时同步您的委托处理轨迹，身份核验通过后可见。">
-    <meta property="og:image" content="https://yqshangan.cn/logo.png">
-    <link rel="icon" href="logo.png" type="image/png">
-    <link rel="apple-touch-icon" href="logo.png">
-
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
         .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 50px; }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
-        /* 查询入口样式 */
-        #search_box { padding: 60px 20px; text-align: center; }
+        /* 1. 查询入口样式 */
+        #search_box { padding: 40px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
         button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); }
         #error_tip { color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; }
 
-        /* 结果页样式 */
+        /* 首页专有的团队信息样式 */
+        .home-team-info { padding: 40px 20px; text-align: center; line-height: 2; color: #3b71e8; font-size: 18px; }
+        .home-team-info p { margin: 8px 0; }
+        .thanks-msg { margin-top: 25px !important; }
+
+        /* 2. 结果页样式 */
         #result_page { display: none; }
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
@@ -46,13 +44,9 @@
         .step.pending { opacity: 0.4; }
 
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
-        .footer-timer { text-align: right; padding: 0 20px 20px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
+        .footer-timer { text-align: right; padding: 0 20px 40px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
         .countdown-str { font-size: 18px; font-weight: bold; }
-
-        /* 新增底部团队信息样式 */
-        .footer-team-info { padding: 10px 20px 40px; text-align: center; line-height: 2; font-size: 18px; color: #3b71e8; }
-        .footer-team-info p { margin: 0; }
     </style>
 </head>
 <body>
@@ -65,6 +59,13 @@
         <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
         <button onclick="doSearch()">立即查询处理进度</button>
         <p id="error_tip">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
+
+        <div class="home-team-info">
+            <p>协商顾问:刘老师</p>
+            <p>协商团队老师:李老师，陈老师，汪老师</p>
+            <p>法务主任:刘主任</p>
+            <p class="thanks-msg">感谢您的信任，如有任何问题可在协商群咨询</p>
+        </div>
     </div>
 
     <div id="result_page">
@@ -117,13 +118,6 @@
             <span class="date-str" id="currentDate"></span>
             <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
         </div>
-
-        <div class="footer-team-info">
-            <p>协商顾问:刘老师</p>
-            <p>协商团队老师:李老师，陈老师，汪老师</p>
-            <p>法务主任:刘主任</p>
-            <p>感谢您的信任，如有任何问题可在协商群咨询</p>
-        </div>
     </div>
 </div>
 
@@ -140,7 +134,10 @@
             
             if (data[val]) {
                 errorTip.style.display = 'none';
+                // 隐藏整个 search_box（包括其中的团队信息）
                 document.getElementById('search_box').style.display = 'none';
                 document.getElementById('result_page').style.display = 'block';
                 
-                document.g
+                document.getElementById('disp_id').innerText = val;
+                document.getElementById('disp_name').innerText = data[val].name;
+                document.getElementById('disp_plat').innerText
