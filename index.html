@@ -4,18 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>平台进度查询系统</title>
+    
+    <meta property="og:title" content="平台进度查询系统">
+    <meta property="og:description" content="实时同步您的委托处理轨迹，身份核验通过后可见。">
+    <meta property="og:image" content="https://yqshangan.cn/logo.png">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="apple-touch-icon" href="logo.png">
+
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
         .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 50px; }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
-        /* 查询页 */
+        /* 查询入口样式 */
         #search_box { padding: 60px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
         button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); }
+        #error_tip { color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; }
 
-        /* 结果页 */
+        /* 结果页样式 */
         #result_page { display: none; }
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
@@ -35,31 +43,35 @@
         .step-icon { position: absolute; left: -45px; top: 0; width: 30px; height: 30px; text-align: center; font-size: 22px; z-index: 2; }
         .step-content h3 { margin: 0; font-size: 17px; font-weight: bold; color: #000; }
         .step-content p { margin: 4px 0 0; font-size: 14px; color: #777; line-height: 1.5; }
-        
         .step.pending { opacity: 0.4; }
+
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
-        .footer-timer { text-align: right; padding: 0 20px 40px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
+        .footer-timer { text-align: right; padding: 0 20px 20px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
         .countdown-str { font-size: 18px; font-weight: bold; }
+
+        /* 新增底部团队信息样式 */
+        .footer-team-info { padding: 10px 20px 40px; text-align: center; line-height: 2; font-size: 18px; color: #3b71e8; }
+        .footer-team-info p { margin: 0; }
     </style>
 </head>
 <body>
 
-<div class="container" id="main_content">
+<div class="container">
     <div class="header">平台进度查询系统</div>
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
         <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
         <button onclick="doSearch()">立即查询处理进度</button>
-        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
+        <p id="error_tip">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
     </div>
 
     <div id="result_page">
         <div class="user-info">
             <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
             <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
-            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat" style="color: #000;"></span></div>
+            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat"></span></div>
         </div>
         <div class="verify-status">身份核验通过，正在显示处理进度</div>
         
@@ -105,6 +117,13 @@
             <span class="date-str" id="currentDate"></span>
             <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
         </div>
+
+        <div class="footer-team-info">
+            <p>协商顾问:刘老师</p>
+            <p>协商团队老师:李老师，陈老师，汪老师</p>
+            <p>法务主任:刘主任</p>
+            <p>感谢您的信任，如有任何问题可在协商群咨询</p>
+        </div>
     </div>
 </div>
 
@@ -113,55 +132,15 @@
         const val = document.getElementById('id_input').value.trim();
         const errorTip = document.getElementById('error_tip');
         
-        if (val.length !== 4) { 
-            alert("请输入身份证后4位"); 
-            return; 
-        }
+        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
 
         try {
-            // 获取云端数据库
             const response = await fetch('data.json');
             const data = await response.json();
             
-            // 核心逻辑：判断是否存在该后四位
             if (data[val]) {
                 errorTip.style.display = 'none';
                 document.getElementById('search_box').style.display = 'none';
                 document.getElementById('result_page').style.display = 'block';
                 
-                document.getElementById('disp_id').innerText = val;
-                document.getElementById('disp_name').innerText = data[val].name;
-                document.getElementById('disp_plat').innerText = data[val].plat;
-                
-                startTimer(val); // 启动独立倒计时
-            } else {
-                // 如果找不到，显示红色错误提示
-                errorTip.style.display = 'block';
-                document.getElementById('id_input').value = ''; // 清空输入框
-            }
-        } catch (e) {
-            alert("系统数据连接失败，请联系老师");
-        }
-    }
-
-    function startTimer(u_id) {
-        const key = 'yq_v_final_' + u_id;
-        const total = 12 * 60 * 60 * 1000;
-        let start = localStorage.getItem(key);
-        if (!start) { start = new Date().getTime(); localStorage.setItem(key, start); }
-        setInterval(() => {
-            const left = total - (new Date().getTime() - start);
-            if (left <= 0) { document.getElementById('timer').innerText = "00: 00: 00"; return; }
-            const h = Math.floor(left / 3600000);
-            const m = Math.floor((left % 3600000) / 60000);
-            const s = Math.floor((left % 60000) / 1000);
-            document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}: ${String(m).padStart(2,'0')}: ${String(s).padStart(2,'0')}`;
-        }, 1000);
-    }
-
-    const d = new Date();
-    document.getElementById('currentDate').innerText = d.getFullYear() + "年" + String(d.getMonth()+1).padStart(2,'0') + "月" + String(d.getDate()).padStart(2,'0') + "日";
-</script>
-
-</body>
-</html>
+                document.g
