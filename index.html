@@ -36,9 +36,7 @@
         .step-content h3 { margin: 0; font-size: 17px; font-weight: bold; color: #000; }
         .step-content p { margin: 4px 0 0; font-size: 14px; color: #777; line-height: 1.5; }
         
-        /* 未完成状态 */
         .step.pending { opacity: 0.4; }
-
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
         .footer-timer { text-align: right; padding: 0 20px 40px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
@@ -47,20 +45,21 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="main_content">
     <div class="header">平台进度查询系统</div>
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
         <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
         <button onclick="doSearch()">立即查询处理进度</button>
+        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
     </div>
 
     <div id="result_page">
         <div class="user-info">
-            <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name">载入中...</span></div>
+            <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
             <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
-            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat" style="color: #000;">载入中...</span></div>
+            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat" style="color: #000;"></span></div>
         </div>
         <div class="verify-status">身份核验通过，正在显示处理进度</div>
         
@@ -112,30 +111,37 @@
 <script>
     async function doSearch() {
         const val = document.getElementById('id_input').value.trim();
-        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
-
-        document.getElementById('search_box').style.display = 'none';
-        document.getElementById('result_page').style.display = 'block';
-        document.getElementById('disp_id').innerText = val;
+        const errorTip = document.getElementById('error_tip');
+        
+        if (val.length !== 4) { 
+            alert("请输入身份证后4位"); 
+            return; 
+        }
 
         try {
-            // 获取同目录下的 data.json 数据库
+            // 获取云端数据库
             const response = await fetch('data.json');
             const data = await response.json();
             
+            // 核心逻辑：判断是否存在该后四位
             if (data[val]) {
+                errorTip.style.display = 'none';
+                document.getElementById('search_box').style.display = 'none';
+                document.getElementById('result_page').style.display = 'block';
+                
+                document.getElementById('disp_id').innerText = val;
                 document.getElementById('disp_name').innerText = data[val].name;
                 document.getElementById('disp_plat').innerText = data[val].plat;
+                
+                startTimer(val); // 启动独立倒计时
             } else {
-                document.getElementById('disp_name').innerText = "专属委托人";
-                document.getElementById('disp_plat').innerText = "综合债务协商平台";
+                // 如果找不到，显示红色错误提示
+                errorTip.style.display = 'block';
+                document.getElementById('id_input').value = ''; // 清空输入框
             }
         } catch (e) {
-            document.getElementById('disp_name').innerText = "系统录入中";
-            document.getElementById('disp_plat').innerText = "请联系对应老师";
+            alert("系统数据连接失败，请联系老师");
         }
-
-        startTimer(val);
     }
 
     function startTimer(u_id) {
