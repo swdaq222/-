@@ -62,13 +62,13 @@
 </head>
 <body>
 
-<div class="container" id="main_content">
+<div class="container">
     <div class="header">平台进度查询系统</div>
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
         <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
-        <button onclick="doSearch()">立即查询处理进度</button>
+        <button id="search_btn">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
 
         <div class="home-team-info">
@@ -85,7 +85,7 @@
         <div class="user-info">
             <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
             <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
-            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat" style="color: #000;"></span></div>
+            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat"></span></div>
         </div>
         <div class="verify-status">身份核验通过，正在显示处理进度</div>
         
@@ -96,37 +96,24 @@
             <div class="timeline">
                 <div class="step">
                     <div class="step-icon">📤</div>
-                    <div class="step-content">
-                        <h3>提交完成</h3>
-                        <p>(已核查客户信息属实本人处理协商欠款)</p>
-                    </div>
+                    <div class="step-content"><h3>提交完成</h3><p>(已核查客户信息属实本人处理协商欠款)</p></div>
                 </div>
                 <div class="step">
                     <div class="step-icon">📋</div>
-                    <div class="step-content">
-                        <h3>核算完成</h3>
-                        <p>(已对接所有负债平台核查具体欠款金额)</p>
-                    </div>
+                    <div class="step-content"><h3>核算完成</h3><p>(已对接所有负债平台核查具体欠款金额)</p></div>
                 </div>
                 <div class="step">
                     <div class="step-icon">⏩</div>
-                    <div class="step-content">
-                        <h3>处理完成</h3>
-                        <p>(方案已出，委托方交付协商处理尾款，达成方案生效，方案具有当时时效性，方案过期视为自动放弃处理，恶意套取协商机制，永久不接受二次协商)</p>
-                    </div>
+                    <div class="step-content"><h3>处理完成</h3><p>(方案已出...永久不接受二次协商)</p></div>
                 </div>
                 <div class="step pending">
                     <div class="step-icon">✈️</div>
-                    <div class="step-content">
-                        <h3>结案完成</h3>
-                        <p>(回复结案老师开始生效，后续服务维护到委托方结清协商平台欠款终止)</p>
-                    </div>
+                    <div class="step-content"><h3>结案完成</h3><p>(回复结案老师开始生效...)</p></div>
                 </div>
             </div>
         </div>
 
         <div class="warning">温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。</div>
-
         <div class="footer-timer">
             <span class="date-str" id="currentDate"></span>
             <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
@@ -135,16 +122,60 @@
 </div>
 
 <script>
-    async function doSearch() {
+    // 页面加载完成后绑定点击事件，提高稳定性
+    document.getElementById('search_btn').addEventListener('click', async function() {
         const val = document.getElementById('id_input').value.trim();
         const errorTip = document.getElementById('error_tip');
         
         if (val.length !== 4) { alert("请输入身份证后4位"); return; }
 
         try {
-            const response = await fetch('./data.json?v=' + new Date().getTime());
-            if (!response.ok) throw new Error();
+            // 加入随机参数防止缓存
+            const response = await fetch('./data.json?t=' + Date.now());
+            if (!response.ok) throw new Error("File not found");
             const data = await response.json();
             
             if (data[val]) {
                 errorTip.style.display = 'none';
+                document.getElementById('search_box').style.display = 'none';
+                document.getElementById('result_page').style.display = 'block';
+                
+                document.getElementById('disp_id').innerText = val;
+                document.getElementById('disp_name').innerText = data[val].name;
+                document.getElementById('disp_plat').innerText = data[val].plat;
+                
+                startTimer(val);
+            } else {
+                errorTip.style.display = 'block';
+                document.getElementById('id_input').value = '';
+            }
+        } catch (e) {
+            console.error(e);
+            alert("加载数据失败，请确认 data.json 文件是否存在。");
+        }
+    });
+
+    function startTimer(u_id) {
+        const key = 'yq_timer_' + u_id;
+        const total = 12 * 60 * 60 * 1000;
+        let start = localStorage.getItem(key);
+        if (!start) { start = Date.now(); localStorage.setItem(key, start); }
+        
+        function update() {
+            const left = total - (Date.now() - start);
+            if (left <= 0) { document.getElementById('timer').innerText = "00: 00: 00"; return; }
+            const h = Math.floor(left / 3600000);
+            const m = Math.floor((left % 3600000) / 60000);
+            const s = Math.floor((left % 60000) / 1000);
+            document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}: ${String(m).padStart(2,'0')}: ${String(s).padStart(2,'0')}`;
+        }
+        update();
+        setInterval(update, 1000);
+    }
+
+    const d = new Date();
+    document.getElementById('currentDate').innerText = d.getFullYear() + "年" + String(d.getMonth()+1).padStart(2,'0') + "月" + String(d.getDate()).padStart(2,'0') + "日";
+</script>
+
+</body>
+</html>
