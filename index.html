@@ -9,17 +9,17 @@
         .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 50px; }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
-        /* 查询页 */
+        /* 首页查询区域 */
         #search_box { padding: 60px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
         button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; }
 
-        /* 首页新增团队文字样式 */
-        .home-team-text { margin-top: 40px; color: #3b71e8; line-height: 2.2; font-size: 18px; text-align: center; }
-        .home-team-text p { margin: 5px 0; }
+        /* 首页增加的文字样式 */
+        .home-team-info { margin-top: 40px; color: #3b71e8; line-height: 2.2; font-size: 18px; text-align: center; }
+        .home-team-info p { margin: 5px 0; }
 
-        /* 结果页 */
+        /* 结果页区域 */
         #result_page { display: none; }
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
@@ -58,7 +58,7 @@
         <button onclick="doSearch()">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
 
-        <div class="home-team-text">
+        <div class="home-team-info">
             <p>协商顾问:刘老师</p>
             <p>协商团队老师:李老师，陈老师，汪老师</p>
             <p>法务主任:刘主任</p>
@@ -124,14 +124,12 @@
         const val = document.getElementById('id_input').value.trim();
         const errorTip = document.getElementById('error_tip');
         
-        if (val.length !== 4) { 
-            alert("请输入身份证后4位"); 
-            return; 
-        }
+        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
 
         try {
-            const response = await fetch('data.json');
-            if (!response.ok) throw new Error();
+            // 使用相对路径，确保在 GitHub Pages 稳定读取
+            const response = await fetch('./data.json?v=' + new Date().getTime());
+            if (!response.ok) throw new Error("无法读取数据库");
             const data = await response.json();
             
             if (data[val]) {
@@ -141,4 +139,40 @@
                 
                 document.getElementById('disp_id').innerText = val;
                 document.getElementById('disp_name').innerText = data[val].name;
-                document.getEleme
+                document.getElementById('disp_plat').innerText = data[val].plat;
+                
+                startTimer(val);
+            } else {
+                errorTip.style.display = 'block';
+                document.getElementById('id_input').value = '';
+            }
+        } catch (e) {
+            console.error(e);
+            alert("系统数据连接失败。请确认 GitHub 上的 data.json 文件已上传，且与 index.html 在同一个文件夹内。");
+        }
+    }
+
+    function startTimer(u_id) {
+        const key = 'yq_timer_' + u_id;
+        const total = 12 * 60 * 60 * 1000;
+        let start = localStorage.getItem(key);
+        if (!start) { start = new Date().getTime(); localStorage.setItem(key, start); }
+        
+        function update() {
+            const left = total - (new Date().getTime() - start);
+            if (left <= 0) { document.getElementById('timer').innerText = "00: 00: 00"; return; }
+            const h = Math.floor(left / 3600000);
+            const m = Math.floor((left % 3600000) / 60000);
+            const s = Math.floor((left % 60000) / 1000);
+            document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}: ${String(m).padStart(2,'0')}: ${String(s).padStart(2,'0')}`;
+        }
+        update();
+        setInterval(update, 1000);
+    }
+
+    const d = new Date();
+    document.getElementById('currentDate').innerText = d.getFullYear() + "年" + String(d.getMonth()+1).padStart(2,'0') + "月" + String(d.getDate()).padStart(2,'0') + "日";
+</script>
+
+</body>
+</html>
