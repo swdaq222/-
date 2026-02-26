@@ -1,29 +1,227 @@
-        <span class="date-str" id="currentDate">2026年01月29日</span>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台进度查询</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        .header {
+            background-color: #f0f4ff;
+            padding: 15px 20px;
+            color: #3b71e8;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-info {
+            padding: 20px;
+            line-height: 2;
+            font-size: 16px;
+        }
+        .info-item {
+            margin-bottom: 8px;
+        }
+        .label {
+            color: #333;
+        }
+        .value {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .divider {
+            height: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .track-section {
+            padding: 20px;
+        }
+        .track-title {
+            color: #666;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 10px;
+            bottom: 40px;
+            border-left: 2px dotted #ccc;
+        }
+
+        .step {
+            position: relative;
+            margin-bottom: 35px;
+        }
+
+        .step-icon {
+            position: absolute;
+            left: -35px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: #fff;
+            text-align: center;
+            font-size: 20px;
+            z-index: 2;
+        }
+
+        .step-content h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .step-content p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .step.pending .step-content h3, 
+        .step.pending .step-content p {
+            color: #aaa;
+        }
+        .step.pending .step-icon {
+            filter: grayscale(1);
+            opacity: 0.5;
+        }
+
+        .warning {
+            padding: 20px;
+            color: #e54d42;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+
+        .footer-timer {
+            text-align: right;
+            padding: 20px;
+            color: #e54d42;
+            font-family: "Courier New", Courier, monospace;
+        }
+        .date-str {
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+        }
+        .countdown-str {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">平台进度查询</div>
+
+    <div class="user-info">
+        <div class="info-item">
+            <span class="label">委托人：</span>
+            <span class="value" id="userName">龙</span>
+        </div>
+        <div class="info-item">
+            <span class="label">委托人身份证：</span>
+            <span class="value" id="userID">410123199001018898</span>
+        </div>
+        <div class="info-item">
+            <span class="label">委托人处理平台：</span>
+            <span class="value" id="userPlatform">支付宝借呗 / 微粒贷 分期乐</span>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="track-section">
+        <div class="track-title">处理轨迹</div>
+        
+        <div class="timeline">
+            <div class="step">
+                <div class="step-icon">📤</div>
+                <div class="step-content">
+                    <h3>提交完成</h3>
+                    <p>(已核查客户信息属实本人处理协商欠款)</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon">📋</div>
+                <div class="step-content">
+                    <h3>核算完成</h3>
+                    <p>(已对接所有负债平台核查具体欠款金额)</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-icon">⏩</div>
+                <div class="step-content">
+                    <h3>处理完成</h3>
+                    <p>(方案已出，委托方交付协商处理尾款，达成方案生效...)</p>
+                </div>
+            </div>
+
+            <div class="step pending">
+                <div class="step-icon">✈️</div>
+                <div class="step-content">
+                    <h3>结案完成</h3>
+                    <p>(回复结案老师开始生效，后续服务维护到委托方结清终止)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="warning">
+        温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。
+    </div>
+
+    <div class="footer-timer">
+        <span class="date-str" id="currentDate"></span>
         <span class="countdown-str">倒计时：<span id="timer">11: 59: 50</span></span>
     </div>
 </div>
 
 <script>
-    // 1. 设置自定义内容
-    document.getElementById('userName').innerText = "龙"; 
-    document.getElementById('userID').innerText = "410123199001018898";
-    document.getElementById('userPlatform').innerText = "支付宝借呗 / 微粒贷 分期乐";
-
-    // 2. 自动更新日期为今天
+    // 1. 自动更新日期为今天
     const now = new Date();
     const dateString = now.getFullYear() + "年" + 
                        String(now.getMonth() + 1).padStart(2, '0') + "月" + 
                        String(now.getDate()).padStart(2, '0') + "日";
     document.getElementById('currentDate').innerText = dateString;
 
-    // 3. 智能倒计时逻辑（刷新不重置）
+    // 2. 智能倒计时逻辑
     const STORAGE_KEY = 'countdown_start_time';
-    const TOTAL_TIME = 12 * 60 * 60 * 1000; // 12小时的毫秒数
+    const TOTAL_TIME = 12 * 60 * 60 * 1000; 
 
     let startTime = localStorage.getItem(STORAGE_KEY);
-
     if (!startTime) {
-        // 如果是该手机第一次打开，记录下这个起始时间点
         startTime = new Date().getTime();
         localStorage.setItem(STORAGE_KEY, startTime);
     }
@@ -42,21 +240,15 @@
         const minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
         const seconds = Math.floor((remainingTime / 1000) % 60);
 
-        // 格式化输出 00: 00: 00
-        let display = 
+        document.getElementById('timer').innerText = 
             String(hours).padStart(2, '0') + ": " + 
             String(minutes).padStart(2, '0') + ": " + 
             String(seconds).padStart(2, '0');
-        
-        document.getElementById('timer').innerText = display;
     }
 
-    // 每秒运行一次
     setInterval(updateTimer, 1000);
-    updateTimer(); 
+    updateTimer();
 </script>
 
-
 </body>
-
 </html>
