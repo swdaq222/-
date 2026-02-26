@@ -219,30 +219,43 @@
 </div>
 
 <script>
-    // 1. 设置自定义内容（你也可以直接在上面的HTML里改）
+    // 1. 设置自定义内容
     document.getElementById('userName').innerText = "龙"; 
     document.getElementById('userID').innerText = "410123199001018898";
     document.getElementById('userPlatform').innerText = "支付宝借呗 / 微粒贷 分期乐";
 
-    // 2. 自动更新日期为今天（或者你可以写死）
+    // 2. 自动更新日期为今天
     const now = new Date();
     const dateString = now.getFullYear() + "年" + 
                        String(now.getMonth() + 1).padStart(2, '0') + "月" + 
                        String(now.getDate()).padStart(2, '0') + "日";
     document.getElementById('currentDate').innerText = dateString;
 
-    // 3. 12小时倒计时逻辑
-    let totalSeconds = 12 * 60 * 60; // 12小时转换成秒
+    // 3. 智能倒计时逻辑（刷新不重置）
+    const STORAGE_KEY = 'countdown_start_time';
+    const TOTAL_TIME = 12 * 60 * 60 * 1000; // 12小时的毫秒数
+
+    let startTime = localStorage.getItem(STORAGE_KEY);
+
+    if (!startTime) {
+        // 如果是该手机第一次打开，记录下这个起始时间点
+        startTime = new Date().getTime();
+        localStorage.setItem(STORAGE_KEY, startTime);
+    }
 
     function updateTimer() {
-        if (totalSeconds <= 0) {
+        const currentTime = new Date().getTime();
+        const elapsedTime = currentTime - startTime;
+        const remainingTime = TOTAL_TIME - elapsedTime;
+
+        if (remainingTime <= 0) {
             document.getElementById('timer').innerText = "00: 00: 00";
             return;
         }
 
-        let hours = Math.floor(totalSeconds / 3600);
-        let minutes = Math.floor((totalSeconds % 3600) / 60);
-        let seconds = totalSeconds % 60;
+        const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((remainingTime / (1000 * 60)) % 60);
+        const seconds = Math.floor((remainingTime / 1000) % 60);
 
         // 格式化输出 00: 00: 00
         let display = 
@@ -251,14 +264,15 @@
             String(seconds).padStart(2, '0');
         
         document.getElementById('timer').innerText = display;
-        totalSeconds--;
     }
 
     // 每秒运行一次
     setInterval(updateTimer, 1000);
-    updateTimer(); // 立即执行一次避免空白
+    updateTimer(); 
 </script>
+
 
 </body>
 
 </html>
+
