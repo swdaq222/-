@@ -9,19 +9,19 @@
         .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 50px; }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
-        /* 1. 查询入口样式 */
+        /* 1. 查询页容器 */
         #search_box { padding: 40px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
-        button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); }
+        button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; }
         #error_tip { color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold; }
 
-        /* 首页专有的团队信息样式 */
-        .home-team-info { padding: 40px 20px; text-align: center; line-height: 2; color: #3b71e8; font-size: 18px; }
-        .home-team-info p { margin: 8px 0; }
-        .thanks-msg { margin-top: 25px !important; }
+        /* 首页专有的团队信息 */
+        .home-team-info { padding: 40px 20px; text-align: center; line-height: 2.2; color: #3b71e8; font-size: 18px; }
+        .home-team-info p { margin: 5px 0; }
+        .thanks-msg { margin-top: 20px !important; }
 
-        /* 2. 结果页样式 */
+        /* 2. 结果页容器 */
         #result_page { display: none; }
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
@@ -129,15 +129,17 @@
         if (val.length !== 4) { alert("请输入身份证后4位"); return; }
 
         try {
+            // 确保 data.json 与 index.html 在同一目录下
             const response = await fetch('data.json');
+            if (!response.ok) throw new Error();
             const data = await response.json();
             
             if (data[val]) {
                 errorTip.style.display = 'none';
-                // 隐藏整个 search_box（包括其中的团队信息）
+                // 彻底隐藏首页（含团队文字）
                 document.getElementById('search_box').style.display = 'none';
+                // 显示结果页
                 document.getElementById('result_page').style.display = 'block';
                 
                 document.getElementById('disp_id').innerText = val;
-                document.getElementById('disp_name').innerText = data[val].name;
-                document.getElementById('disp_plat').innerText
+                do
