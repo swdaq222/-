@@ -24,8 +24,6 @@
         .step.pending .step-content h3, .step.pending .step-content p { color: #aaa; }
         .step.pending .step-icon { filter: grayscale(1); opacity: 0.5; }
         .warning { padding: 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.5; }
-        
-        /* 底部倒计时样式 */
         .footer-timer { text-align: right; padding: 20px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 5px; }
         .countdown-str { font-size: 18px; font-weight: bold; }
@@ -39,15 +37,15 @@
     <div class="user-info">
         <div class="info-item">
             <span class="label">委托人：</span>
-            <span class="value">龙</span>
+            <span class="value" id="disp_name">加载中...</span>
         </div>
         <div class="info-item">
             <span class="label">委托人身份证：</span>
-            <span class="value">410123199001018898</span>
+            <span class="value" id="disp_id">加载中...</span>
         </div>
         <div class="info-item">
             <span class="label">委托人处理平台：</span>
-            <span class="value">支付宝借呗 / 微粒贷 分期乐</span>
+            <span class="value" id="disp_plat">加载中...</span>
         </div>
     </div>
 
@@ -75,9 +73,7 @@
         </div>
     </div>
 
-    <div class="warning">
-        温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。
-    </div>
+    <div class="warning">温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。</div>
 
     <div class="footer-timer">
         <span class="date-str" id="currentDate"></span>
@@ -86,22 +82,29 @@
 </div>
 
 <script>
-    // 1. 自动更新当前日期
+    // 1. 解析网址中的参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const u_name = urlParams.get('n') || '未填写';
+    const u_id = urlParams.get('id') || '000000'; // 用于锁定计时的 ID
+    const u_plat = urlParams.get('p') || '未填写';
+
+    // 将内容填入网页
+    document.getElementById('disp_name').innerText = u_name;
+    document.getElementById('disp_id').innerText = u_id;
+    document.getElementById('disp_plat').innerText = u_plat;
+
+    // 2. 自动更新日期
     const now = new Date();
-    const dateString = now.getFullYear() + "年" + 
-                       String(now.getMonth() + 1).padStart(2, '0') + "月" + 
-                       String(now.getDate()).padStart(2, '0') + "日";
-    document.getElementById('currentDate').innerText = dateString;
+    document.getElementById('currentDate').innerText = now.getFullYear() + "年" + 
+        String(now.getMonth() + 1).padStart(2, '0') + "月" + 
+        String(now.getDate()).padStart(2, '0') + "日";
 
-    // 2. 倒计时逻辑 (锁定 12 小时)
-    const STORAGE_KEY = 'yq_countdown_start';
-    const TWELVE_HOURS = 12 * 60 * 60 * 1000; // 12小时的毫秒数
-
-    // 尝试获取本地存储的开始时间
+    // 3. 锁定倒计时逻辑 (根据身份证号 u_id 独立存储)
+    const STORAGE_KEY = 'timer_start_' + u_id; 
+    const TOTAL_TIME = 12 * 60 * 60 * 1000; // 12小时
+    
     let startTime = localStorage.getItem(STORAGE_KEY);
-
     if (!startTime) {
-        // 如果是第一次打开，记录当前时间
         startTime = new Date().getTime();
         localStorage.setItem(STORAGE_KEY, startTime);
     } else {
@@ -109,28 +112,21 @@
     }
 
     function updateTimer() {
-        const currentTime = new Date().getTime();
-        const elapsedTime = currentTime - startTime;
-        const remainingTime = TWELVE_HOURS - elapsedTime;
-
+        const remainingTime = TOTAL_TIME - (new Date().getTime() - startTime);
         if (remainingTime <= 0) {
             document.getElementById('timer').innerText = "00: 00: 00";
             return;
         }
-
-        const h = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((remainingTime / (1000 * 60)) % 60);
+        const h = Math.floor((remainingTime / 3600000) % 24);
+        const m = Math.floor((remainingTime / 60000) % 60);
         const s = Math.floor((remainingTime / 1000) % 60);
-
         document.getElementById('timer').innerText = 
             String(h).padStart(2, '0') + ": " + 
             String(m).padStart(2, '0') + ": " + 
             String(s).padStart(2, '0');
     }
-
-    // 每秒更新一次
     setInterval(updateTimer, 1000);
-    updateTimer(); // 立即执行一次
+    updateTimer();
 </script>
 
 </body>
