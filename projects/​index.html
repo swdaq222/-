@@ -14,16 +14,14 @@
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
         
-        /* 通用按钮样式 */
-        .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; transition: background 0.3s; text-decoration: none; display: inline-block; }
+        .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
         .btn-primary:active { background-color: #2a52ad; }
 
-        /* 首页团队信息 */
         .home-team-info { margin-top: 50px; padding: 0 15px; }
         .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
         .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
 
-        /* 结果页区域 */
+        /* 结果页 */
         #result_page { display: none; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -48,14 +46,12 @@
         .step.pending { opacity: 0.4; }
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
         
-        /* 底部倒计时与按钮区 */
         .footer-action { text-align: center; padding: 0 20px 40px; }
         .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; margin-bottom: 25px; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
         .countdown-str { font-size: 18px; font-weight: bold; }
         
-        .pay-btn-box { margin-top: 10px; }
-        .pay-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; }
+        .pay-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -126,8 +122,61 @@
                 <span class="date-str" id="currentDate"></span>
                 <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
             </div>
+            <a href="https://i.wosai.cn/4C0Z2z" class="btn-primary pay-btn">支付尾款办理结案</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 客户数据管理区 ---
+    const USER_DATA = {
+        "5953": { "name": "王*明", "platform": "某某分期 / 支付宝借呗" },
+        "1234": { "name": "张*华", "platform": "中信银行信用卡" }
+        // 按格式添加更多用户即可
+    };
+
+    const searchBtn = document.getElementById('search_btn');
+    const idInput = document.getElementById('id_input');
+    const errorTip = document.getElementById('error_tip');
+
+    searchBtn.addEventListener('click', function() {
+        const val = idInput.value.trim();
+        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
+
+        if (USER_DATA[val]) {
+            errorTip.style.display = 'none';
+            document.getElementById('search_box').style.display = 'none';
+            document.getElementById('result_page').style.display = 'block';
             
-            <div class="pay-btn-box">
-                <a href="https://i.wosai.cn/4C0Z2z" class="btn-primary pay-btn">支付尾款办理结案</a>
-            </div>
-        
+            document.getElementById('disp_name').textContent = USER_DATA[val].name;
+            document.getElementById('disp_id').textContent = val;
+            document.getElementById('disp_plat').textContent = USER_DATA[val].platform;
+            
+            displayDate();
+            startTimer();
+            window.scrollTo(0, 0);
+        } else {
+            errorTip.style.display = 'block';
+        }
+    });
+
+    function displayDate() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    }
+
+    function startTimer() {
+        let totalSeconds = 12 * 60 * 60;
+        const timerDisplay = document.getElementById('timer');
+        const interval = setInterval(() => {
+            if (totalSeconds <= 0) { clearInterval(interval); timerDisplay.textContent = "已过期"; return; }
+            totalSeconds--;
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
+            timerDisplay.textContent = `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+</script>
+</body>
+</html>
