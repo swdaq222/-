@@ -1,1 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台进度查询系统</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 80px; } /* 增加底部间距 */
+        .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
+        
+        /* 首页查询区域 */
+        #search_box { padding: 60px 20px; text-align: center; }
+        .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
+        input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
+        button#search_btn { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; }
 
+        /* 首页团队信息 */
+        .home-team-info { margin-top: 50px; padding: 0 15px; }
+        .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+        .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
+
+        /* 结果页区域 */
+        #result_page { display: none; }
+        .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
+        .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
+        .label { color: #666; min-width: 100px; }
+        .value { font-weight: bold; color: #000; flex: 1; }
+        .verify-status { padding: 10px 20px; font-size: 14px; color: #28a745; font-weight: bold; display: flex; align-items: center; }
+        .verify-status::before { content: '●'; margin-right: 8px; }
+
+        .divider { height: 10px; background-color: #f8f9fa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+
+        .track-section { padding: 20px; }
+        .track-title { color: #888; font-size: 15px; margin-bottom: 25px; }
+        .timeline { position: relative; padding-left: 45px; }
+        .timeline::before { content: ''; position: absolute; left: 14px; top: 10px; bottom: 40px; border-left: 1px dotted #ccc; }
+        
+        .step { position: relative; margin-bottom: 35px; }
+        .step-icon { position: absolute; left: -45px; top: 0; width: 30px; height: 30px; text-align: center; font-size: 22px; z-index: 2; }
+        .step-content h3 { margin: 0; font-size: 17px; font-weight: bold; color: #000; }
+        .step-content p { margin: 4px 0 0; font-size: 14px; color: #777; line-height: 1.5; }
+        
+        .step.pending { opacity: 0.4; }
+        .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
+        .footer-timer { text-align: right; padding: 0 20px 20px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
+        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
+        .countdown-str { font-size: 18px; font-weight: bold; }
+
+        /* --- 新增：结果页支付按钮样式 --- */
+        .pay-action { text-align: center; padding: 20px; margin-top: 10px; }
+        .pay-btn { 
+            display: inline-block;
+            width: 85%;
+            padding: 16px;
+            background: linear-gradient(135deg, #e54d42, #b91d1d); /* 醒目的红色 */
+            color: white;
+            text-decoration: none;
+            border-radius: 50px; /* 圆角按钮 */
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 6px 15px rgba(229, 77, 66, 0.4);
+            animation: pulse 2s infinite; /* 呼吸灯特效 */
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">平台进度查询系统</div>
+
+    <div id="search_box">
+        <div class="search-title">请输入身份证号后四位</div>
+        <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
+        <button id="search_btn">立即查询处理进度</button>
+        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
+
+        <div class="home-team-info">
+            <p>协商顾问：刘老师</p>
+            <p>协商团队老师：李老师，陈老师，汪老师</p>
+            <p>法务主任：刘主任</p>
+            <p class="thanks-msg">
+                感谢您的信任，如有任何问题可在协商群咨询或者拨打客服电话17786454778
+            </p>
+        </div>
+    </div>
+
+    <div id="result_page">
+        <div class="user-info">
+            <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
+            <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
+            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat"></span></div>
+        </div>
+        <div class="verify-status">身份核验通过，正在显示处理进度</div>
+        
+        <div class="divider"></div>
+
+        <div class="track-section">
+            <div class="track-title">处理轨迹</div>
+            <div class="timeline">
+                <div class="step">
+                    <div class="step-icon">📤</div>
+                    <div class="step-content"><h3>提交完成</h3><p>(已核查客户信息属实本人处理协商欠款)</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">📋</div>
+                    <div class="step-content"><h3>核算完成</h3><p>(已对接所有负债平台核查具体欠款金额)</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">⏩</div>
+                    <div class="step-content"><h3>处理完成</h3><p>(方案已出...永久不接受二次协商)</p></div>
+                </div>
+                <div class="step pending">
+                    <div class="step-icon">✈️</div>
+                    <div class="step-content"><h3>结案完成</h3><p>(回复结案老师开始生效...)</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。</div>
+        
+        <div class="footer-timer">
+            <span class="date-str" id="currentDate"></span>
+            <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
+        </div>
+
+        <div class="pay-action">
+            <a href="https://这里替换成您的付款链接" target="_blank" class="pay-btn">支付尾款走结案</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('search_btn').addEventListener('click', async function() {
+        const val = document.getElementById('id_input').val
