@@ -6,22 +6,19 @@
     <title>平台进度查询 system</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 80px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
-        /* 首页查询区域 */
         #search_box { padding: 60px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
         
         .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
-        .btn-primary:active { background-color: #2a52ad; }
-
+        
         .home-team-info { margin-top: 50px; padding: 0 15px; }
         .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
         .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
 
-        /* 结果页 */
         #result_page { display: none; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -46,10 +43,13 @@
         .step.pending { opacity: 0.4; }
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
         
-        .footer-action { text-align: center; padding: 20px 20px 40px; }
-        .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; }
-        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #e54d42; } /* 已经修改为红色 */
+        .footer-action { text-align: center; padding: 0 20px 40px; }
+        .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; margin-bottom: 20px; }
+        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #e54d42; }
         .countdown-str { font-size: 18px; font-weight: bold; }
+        
+        /* 红色联系按钮 */
+        .contact-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; text-align: center; }
     </style>
 </head>
 <body>
@@ -59,7 +59,7 @@
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：7258" maxlength="4">
+        <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
         <button id="search_btn" class="btn-primary">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
@@ -120,16 +120,15 @@
                 <span class="date-str" id="currentDate"></span>
                 <span class="countdown-str">方案剩余时间：<span id="timer">12: 00: 00</span></span>
             </div>
+            <a href="weixin://" class="btn-primary contact-btn">联系老师办理结案</a>
         </div>
     </div>
 </div>
 
 <script>
-    // --- 客户数据管理区 ---
     const USER_DATA = {
-        "6789": { "name": "刘先生", "platform": "好分期 支付宝借呗" },
-        "9876": { "name": "张先生", "platform": "好分期 中信银行信用卡 信贷:平安普惠 大地保险 车主贷" },
-        "0815": { "name": "张海彬", "platform": "民生银行信用卡" }
+        "5953": { "name": "王*明", "platform": "某某分期 / 支付宝借呗" },
+        "1234": { "name": "张*华", "platform": "中信银行信用卡" }
     };
 
     const searchBtn = document.getElementById('search_btn');
@@ -139,16 +138,13 @@
     searchBtn.addEventListener('click', function() {
         const val = idInput.value.trim();
         if (val.length !== 4) { alert("请输入身份证后4位"); return; }
-
         if (USER_DATA[val]) {
             errorTip.style.display = 'none';
             document.getElementById('search_box').style.display = 'none';
             document.getElementById('result_page').style.display = 'block';
-            
             document.getElementById('disp_name').textContent = USER_DATA[val].name;
             document.getElementById('disp_id').textContent = val;
             document.getElementById('disp_plat').textContent = USER_DATA[val].platform;
-            
             displayDate();
             startTimer(val); 
             window.scrollTo(0, 0);
@@ -165,35 +161,26 @@
     function startTimer(userId) {
         const timerDisplay = document.getElementById('timer');
         const storageKey = 'startTime_' + userId;
-        
         let startTime = localStorage.getItem(storageKey);
-
         if (!startTime) {
             startTime = new Date().getTime();
             localStorage.setItem(storageKey, startTime);
         }
-
         function update() {
             const now = new Date().getTime();
             const twelveHoursInMs = 12 * 60 * 60 * 1000; 
             const endTime = parseInt(startTime) + twelveHoursInMs;
-            
             let diffInMs = endTime - now;
-
             if (diffInMs <= 0) {
                 timerDisplay.textContent = "方案已过期";
                 return;
             }
-
             let totalSeconds = Math.floor(diffInMs / 1000);
             let h = Math.floor(totalSeconds / 3600);
             let m = Math.floor((totalSeconds % 3600) / 60);
             let s = totalSeconds % 60;
-
-            timerDisplay.textContent = 
-                `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
+            timerDisplay.textContent = `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
         }
-
         update();
         setInterval(update, 1000);
     }
