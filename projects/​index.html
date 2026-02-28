@@ -6,14 +6,17 @@
     <title>平台进度查询系统</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 80px; } /* 增加底部间距 */
+        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 80px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
         .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
         
         /* 首页查询区域 */
         #search_box { padding: 60px 20px; text-align: center; }
         .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
         input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
-        button#search_btn { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; }
+        
+        /* 通用按钮样式 */
+        .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; transition: background 0.3s; text-decoration: none; display: inline-block; }
+        .btn-primary:active { background-color: #2a52ad; }
 
         /* 首页团队信息 */
         .home-team-info { margin-top: 50px; padding: 0 15px; }
@@ -21,16 +24,17 @@
         .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
 
         /* 结果页区域 */
-        #result_page { display: none; }
+        #result_page { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
         .label { color: #666; min-width: 100px; }
         .value { font-weight: bold; color: #000; flex: 1; }
         .verify-status { padding: 10px 20px; font-size: 14px; color: #28a745; font-weight: bold; display: flex; align-items: center; }
         .verify-status::before { content: '●'; margin-right: 8px; }
-
+        
         .divider { height: 10px; background-color: #f8f9fa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-
         .track-section { padding: 20px; }
         .track-title { color: #888; font-size: 15px; margin-bottom: 25px; }
         .timeline { position: relative; padding-left: 45px; }
@@ -43,30 +47,15 @@
         
         .step.pending { opacity: 0.4; }
         .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
-        .footer-timer { text-align: right; padding: 0 20px 20px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
+        
+        /* 底部倒计时与按钮区 */
+        .footer-action { text-align: center; padding: 0 20px 40px; }
+        .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; margin-bottom: 25px; }
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
         .countdown-str { font-size: 18px; font-weight: bold; }
-
-        /* --- 新增：结果页支付按钮样式 --- */
-        .pay-action { text-align: center; padding: 20px; margin-top: 10px; }
-        .pay-btn { 
-            display: inline-block;
-            width: 85%;
-            padding: 16px;
-            background: linear-gradient(135deg, #e54d42, #b91d1d); /* 醒目的红色 */
-            color: white;
-            text-decoration: none;
-            border-radius: 50px; /* 圆角按钮 */
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 6px 15px rgba(229, 77, 66, 0.4);
-            animation: pulse 2s infinite; /* 呼吸灯特效 */
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
+        
+        .pay-btn-box { margin-top: 10px; }
+        .pay-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; }
     </style>
 </head>
 <body>
@@ -77,15 +66,17 @@
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
         <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
-        <button id="search_btn">立即查询处理进度</button>
-        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
-
+        <button id="search_btn" class="btn-primary">立即查询处理进度</button>
+        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
+            ⚠️ 查询不到该信息，请核对后重试或联系老师
+        </p>
+        
         <div class="home-team-info">
             <p>协商顾问：刘老师</p>
             <p>协商团队老师：李老师，陈老师，汪老师</p>
             <p>法务主任：刘主任</p>
             <p class="thanks-msg">
-                感谢您的信任，如有任何问题可在协商群咨询或者拨打客服电话17786454778
+                感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233
             </p>
         </div>
     </div>
@@ -99,7 +90,7 @@
         <div class="verify-status">身份核验通过，正在显示处理进度</div>
         
         <div class="divider"></div>
-
+        
         <div class="track-section">
             <div class="track-title">处理轨迹</div>
             <div class="timeline">
@@ -113,28 +104,30 @@
                 </div>
                 <div class="step">
                     <div class="step-icon">⏩</div>
-                    <div class="step-content"><h3>处理完成</h3><p>(方案已出...永久不接受二次协商)</p></div>
+                    <div class="step-content">
+                        <h3>处理完成</h3>
+                        <p>(方案已出，委托方交付协商处理尾款，达成方案生效，方案具有当天时效性，方案过期视为自动放弃处理，恶意套取协商机制，永久不接受二次协商)</p>
+                    </div>
                 </div>
                 <div class="step pending">
                     <div class="step-icon">✈️</div>
-                    <div class="step-content"><h3>结案完成</h3><p>(回复结案老师开始生效...)</p></div>
+                    <div class="step-content">
+                        <h3>结案完成</h3>
+                        <p>(回复结案老师开始生效，后续服务维护到委托方结清协商平台欠款终止)</p>
+                    </div>
                 </div>
             </div>
         </div>
-
+        
         <div class="warning">温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。</div>
         
-        <div class="footer-timer">
-            <span class="date-str" id="currentDate"></span>
-            <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
-        </div>
-
-        <div class="pay-action">
-            <a href="https://这里替换成您的付款链接" target="_blank" class="pay-btn">支付尾款走结案</a>
-        </div>
-    </div>
-</div>
-
-<script>
-    document.getElementById('search_btn').addEventListener('click', async function() {
-        const val = document.getElementById('id_input').val
+        <div class="footer-action">
+            <div class="timer-info">
+                <span class="date-str" id="currentDate"></span>
+                <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
+            </div>
+            
+            <div class="pay-btn-box">
+                <a href="https://i.wosai.cn/4C0Z2z" class="btn-primary pay-btn">支付尾款办理结案</a>
+            </div>
+        
