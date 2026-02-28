@@ -61,7 +61,7 @@
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
+        <input type="tel" id="id_input" placeholder="示例：1472" maxlength="4">
         <button id="search_btn" class="btn-primary">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
@@ -130,9 +130,9 @@
 <script>
     // --- 客户数据管理区 ---
     const USER_DATA = {
-        "9876": { "name": "刘先生", "platform": "好分期 / 支付宝借呗" },
-        "6789": { "name": "张先生", "platform": "中信银行信用卡 分期乐" }
-        // 按格式添加更多用户即可
+        "6789": { "name": "刘先生", "platform": "好分期 / 支付宝借呗" },
+        "9876": { "name": "张先生", "platform": "中信银行信用卡 美团" }
+        // 按照上述格式添加更多客户数据
     };
 
     const searchBtn = document.getElementById('search_btn');
@@ -153,7 +153,7 @@
             document.getElementById('disp_plat').textContent = USER_DATA[val].platform;
             
             displayDate();
-            startTimer();
+            startTimer(val); // 传入用户ID来锁定该用户的倒计时
             window.scrollTo(0, 0);
         } else {
             errorTip.style.display = 'block';
@@ -165,17 +165,42 @@
         document.getElementById('currentDate').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
     }
 
-    function startTimer() {
-        let totalSeconds = 12 * 60 * 60;
+    // 方案 B：每个人首次查询后锁定 12 小时，刷新不重置
+    function startTimer(userId) {
         const timerDisplay = document.getElementById('timer');
-        const interval = setInterval(() => {
-            if (totalSeconds <= 0) { clearInterval(interval); timerDisplay.textContent = "已过期"; return; }
-            totalSeconds--;
+        const storageKey = 'startTime_' + userId; // 针对每个身份证号建立独立的计时起点
+        
+        let startTime = localStorage.getItem(storageKey);
+
+        if (!startTime) {
+            // 如果本地没有存储过开始时间，则以现在为起点
+            startTime = new Date().getTime();
+            localStorage.setItem(storageKey, startTime);
+        }
+
+        function update() {
+            const now = new Date().getTime();
+            const twelveHoursInMs = 12 * 60 * 60 * 1000; 
+            const endTime = parseInt(startTime) + twelveHoursInMs;
+            
+            let diffInMs = endTime - now;
+
+            if (diffInMs <= 0) {
+                timerDisplay.textContent = "方案已过期";
+                return;
+            }
+
+            let totalSeconds = Math.floor(diffInMs / 1000);
             let h = Math.floor(totalSeconds / 3600);
             let m = Math.floor((totalSeconds % 3600) / 60);
             let s = totalSeconds % 60;
-            timerDisplay.textContent = `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
-        }, 1000);
+
+            timerDisplay.textContent = 
+                `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
+        }
+
+        update();
+        setInterval(update, 1000);
     }
 </script>
 </body>
