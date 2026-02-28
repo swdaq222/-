@@ -15,10 +15,6 @@
         
         .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
         
-        .home-team-info { margin-top: 50px; padding: 0 15px; }
-        .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
-        .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
-
         #result_page { display: none; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -48,8 +44,7 @@
         .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #e54d42; }
         .countdown-str { font-size: 18px; font-weight: bold; }
         
-        /* 红色联系按钮 */
-        .contact-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; text-align: center; }
+        .contact-btn { background-color: #e54d42 !important; box-shadow: 0 4px 12px rgba(229,77,66,0.3) !important; width: 95%; text-align: center; border: none; }
     </style>
 </head>
 <body>
@@ -64,14 +59,11 @@
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
         </p>
-        
-        <div class="home-team-info">
-            <p>协商顾问：刘老师</p>
-            <p>协商团队老师：李老师，陈老师，汪老师</p>
-            <p>法务主任：刘主任</p>
-            <p class="thanks-msg">
-                感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233
-            </p>
+        <div style="margin-top: 50px; padding: 0 15px; text-align: left;">
+            <p style="color:#2c52a1; font-weight:700;">协商顾问：刘老师</p>
+            <p style="color:#2c52a1; font-weight:700;">协商团队老师：李老师，陈老师，汪老师</p>
+            <p style="color:#2c52a1; font-weight:700;">法务主任：刘主任</p>
+            <p style="color:#4a72c9; font-weight:600; font-size:16px; margin-top:30px;">感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233</p>
         </div>
     </div>
 
@@ -120,7 +112,7 @@
                 <span class="date-str" id="currentDate"></span>
                 <span class="countdown-str">方案剩余时间：<span id="timer">12: 00: 00</span></span>
             </div>
-            <a href="weixin://" class="btn-primary contact-btn">联系老师办理结案</a>
+            <button onclick="handleContact()" class="btn-primary contact-btn">联系老师办理结案</button>
         </div>
     </div>
 </div>
@@ -130,6 +122,23 @@
         "5953": { "name": "王*明", "platform": "某某分期 / 支付宝借呗" },
         "1234": { "name": "张*华", "platform": "中信银行信用卡" }
     };
+
+    // 智能返回逻辑
+    function handleContact() {
+        const ua = window.navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+            // 在微信内部：尝试关闭当前网页窗口直接回到对话框
+            if (typeof WeixinJSBridge !== "undefined") {
+                WeixinJSBridge.call('closeWindow');
+            } else {
+                // 如果 WeixinJSBridge 还没准备好，尝试通用关闭方式
+                window.close();
+            }
+        } else {
+            // 在外部浏览器：尝试唤起微信应用
+            window.location.href = "weixin://";
+        }
+    }
 
     const searchBtn = document.getElementById('search_btn');
     const idInput = document.getElementById('id_input');
