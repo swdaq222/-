@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台进度查询 system</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 40px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
+        
+        /* 首页查询区域 */
+        #search_box { padding: 60px 20px; text-align: center; }
+        .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
+        input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
+        
+        .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
+        .btn-primary:active { background-color: #2a52ad; }
+
+        .home-team-info { margin-top: 50px; padding: 0 15px; }
+        .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+        .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
+
+        /* 结果页 */
+        #result_page { display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
+        .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
+        .label { color: #666; min-width: 100px; }
+        .value { font-weight: bold; color: #000; flex: 1; }
+        .verify-status { padding: 10px 20px; font-size: 14px; color: #28a745; font-weight: bold; display: flex; align-items: center; }
+        .verify-status::before { content: '●'; margin-right: 8px; }
+        
+        .divider { height: 10px; background-color: #f8f9fa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .track-section { padding: 20px; }
+        .track-title { color: #888; font-size: 15px; margin-bottom: 25px; }
+        .timeline { position: relative; padding-left: 45px; }
+        .timeline::before { content: ''; position: absolute; left: 14px; top: 10px; bottom: 40px; border-left: 1px dotted #ccc; }
+        
+        .step { position: relative; margin-bottom: 35px; }
+        .step-icon { position: absolute; left: -45px; top: 0; width: 30px; height: 30px; text-align: center; font-size: 22px; z-index: 2; }
+        .step-content h3 { margin: 0; font-size: 17px; font-weight: bold; color: #000; }
+        .step-content p { margin: 4px 0 0; font-size: 14px; color: #777; line-height: 1.5; }
+        
+        .step.pending { opacity: 0.4; }
+        .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
+        
+        .footer-action { text-align: center; padding: 20px 20px 40px; }
+        .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; }
+        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #333; }
+        .countdown-str { font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">平台进度查询系统</div>
+
+    <div id="search_box">
+        <div class="search-title">请输入身份证号后四位</div>
+        <input type="tel" id="id_input" placeholder="示例：2583" maxlength="4">
+        <button id="search_btn" class="btn-primary">立即查询处理进度</button>
+        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
+            ⚠️ 查询不到该信息，请核对后重试或联系老师
+        </p>
+        
+        <div class="home-team-info">
+            <p>协商顾问：刘老师</p>
+            <p>协商团队老师：李老师，陈老师，汪老师</p>
+            <p>法务主任：刘主任</p>
+            <p class="thanks-msg">
+                感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233
+            </p>
+        </div>
+    </div>
+
+    <div id="result_page">
+        <div class="user-info">
+            <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
+            <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
+            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat"></span></div>
+        </div>
+        <div class="verify-status">身份核验通过，正在显示处理进度</div>
+        
+        <div class="divider"></div>
+        
+        <div class="track-section">
+            <div class="track-title">处理轨迹</div>
+            <div class="timeline">
+                <div class="step">
+                    <div class="step-icon">📤</div>
+                    <div class="step-content"><h3>提交完成</h3><p>(已核查客户信息属实本人处理协商欠款)</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">📋</div>
+                    <div class="step-content"><h3>核算完成</h3><p>(已对接所有负债平台核查具体欠款金额)</p></div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">⏩</div>
+                    <div class="step-content">
+                        <h3>处理完成</h3>
+                        <p>(方案已出，请联系协商老师进行确认。方案具有当天时效性，逾期视为自动放弃处理，永久不接受二次协商)</p>
+                    </div>
+                </div>
+                <div class="step pending">
+                    <div class="step-icon">✈️</div>
+                    <div class="step-content">
+                        <h3>结案完成</h3>
+                        <p>(回复结案老师开始生效，后续服务维护到委托方结清协商平台欠款终止)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="warning">温馨提示：方案具有协商时效性，请在倒计时结束前联系老师。</div>
+        
+        <div class="footer-action">
+            <div class="timer-info">
+                <span class="date-str" id="currentDate"></span>
+                <span class="countdown-str">方案剩余时间：<span id="timer">12: 00: 00</span></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 客户数据管理区 ---
+    const USER_DATA = {
+        "6789": { "name": "刘先生", "platform": "分期乐 好分期  支付宝借呗" },
+        "0815": { "name": "张海彬", "platform": "民生银行信用卡" },
+        "9876": { "name": "张女士", "platform": "中信银行信用卡 美团 信贷:平安普惠 大地" }
+    };
+
+    const searchBtn = document.getElementById('search_btn');
+    const idInput = document.getElementById('id_input');
+    const errorTip = document.getElementById('error_tip');
+
+    searchBtn.addEventListener('click', function() {
+        const val = idInput.value.trim();
+        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
+
+        if (USER_DATA[val]) {
+            errorTip.style.display = 'none';
+            document.getElementById('search_box').style.display = 'none';
+            document.getElementById('result_page').style.display = 'block';
+            
+            document.getElementById('disp_name').textContent = USER_DATA[val].name;
+            document.getElementById('disp_id').textContent = val;
+            document.getElementById('disp_plat').textContent = USER_DATA[val].platform;
+            
+            displayDate();
+            startTimer(val); 
+            window.scrollTo(0, 0);
+        } else {
+            errorTip.style.display = 'block';
+        }
+    });
+
+    function displayDate() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    }
+
+    function startTimer(userId) {
+        const timerDisplay = document.getElementById('timer');
+        const storageKey = 'startTime_' + userId;
+        
+        let startTime = localStorage.getItem(storageKey);
+
+        if (!startTime) {
+            startTime = new Date().getTime();
+            localStorage.setItem(storageKey, startTime);
+        }
+
+        function update() {
+            const now = new Date().getTime();
+            const twelveHoursInMs = 12 * 60 * 60 * 1000; 
+            const endTime = parseInt(startTime) + twelveHoursInMs;
+            
+            let diffInMs = endTime - now;
+
+            if (diffInMs <= 0) {
+                timerDisplay.textContent = "方案已过期";
+                return;
+            }
+
+            let totalSeconds = Math.floor(diffInMs / 1000);
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
+
+            timerDisplay.textContent = 
+                `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
+        }
+
+        update();
+        setInterval(update, 1000);
+    }
+</script>
+</body>
+</html>
