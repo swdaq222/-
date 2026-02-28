@@ -48,7 +48,7 @@
         
         .footer-action { text-align: center; padding: 20px 20px 40px; }
         .timer-info { text-align: right; color: #e54d42; font-family: "Courier New", Courier, monospace; }
-        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #333; }
+        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; color: #e54d42; } /* 已经修改为红色 */
         .countdown-str { font-size: 18px; font-weight: bold; }
     </style>
 </head>
@@ -59,7 +59,7 @@
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：2583" maxlength="4">
+        <input type="tel" id="id_input" placeholder="示例：7258" maxlength="4">
         <button id="search_btn" class="btn-primary">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
@@ -127,9 +127,9 @@
 <script>
     // --- 客户数据管理区 ---
     const USER_DATA = {
-        "6789": { "name": "刘先生", "platform": "分期乐 好分期  支付宝借呗" },
-        "0815": { "name": "张海彬", "platform": "民生银行信用卡" },
-        "9876": { "name": "张女士", "platform": "中信银行信用卡 美团 信贷:平安普惠 大地" }
+        "6789": { "name": "刘先生", "platform": "好分期 支付宝借呗" },
+        "9876": { "name": "张先生", "platform": "好分期 中信银行信用卡 信贷:平安普惠 大地保险 车主贷" },
+        "0815": { "name": "张海彬", "platform": "民生银行信用卡" }
     };
 
     const searchBtn = document.getElementById('search_btn');
