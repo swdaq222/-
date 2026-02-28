@@ -16,15 +16,12 @@
         
         .btn-primary { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
         .btn-primary:active { background-color: #2a52ad; }
-
         .home-team-info { margin-top: 50px; padding: 0 15px; }
         .home-team-info p { margin: 12px 0; color: #2c52a1; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
         .thanks-msg { margin-top: 30px !important; color: #4a72c9 !important; font-weight: 600 !important; font-size: 16px !important; line-height: 1.6; }
-
         /* 结果页 */
         #result_page { display: none; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
         .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
         .label { color: #666; min-width: 100px; }
@@ -55,13 +52,11 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="header">平台进度查询系统</div>
-
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：3456" maxlength="4">
+        <input type="tel" id="id_input" placeholder="示例：1472" maxlength="4">
         <button id="search_btn" class="btn-primary">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
@@ -76,7 +71,6 @@
             </p>
         </div>
     </div>
-
     <div id="result_page">
         <div class="user-info">
             <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
@@ -126,13 +120,52 @@
         </div>
     </div>
 </div>
-
 <script>
     // --- 客户数据管理区 ---
     const USER_DATA = {
-        "5953": { "name": "王*明", "platform": "某某分期 / 支付宝借呗" },
-        "6789": { "name": "龙女士", "platform": "微粒贷 / 网商贷" },
-        "8888": { "name": "陈*美", "platform": "招商银行信用卡中心" },
-        "9999": { "name": "赵*磊", "platform": "京东白条 / 金条" }
-        // 以后每增加一个客户，就在上面这一行后面加一个逗号，然后换行写新的
+        "5953": { "name": "王明", "platform": "某某分期 / 支付宝借呗" },
+        "1234": { "name": "张华", "platform": "中信银行信用卡" }
+        "6789": { "name": "刘先生", "platform": "中信银行信用卡 美团 分期乐" }
+        // 按格式添加更多用户即可
     };
+    const searchBtn = document.getElementById('search_btn');
+    const idInput = document.getElementById('id_input');
+    const errorTip = document.getElementById('error_tip');
+    searchBtn.addEventListener('click', function() {
+        const val = idInput.value.trim();
+        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
+        if (USER_DATA[val]) {
+            errorTip.style.display = 'none';
+            document.getElementById('search_box').style.display = 'none';
+            document.getElementById('result_page').style.display = 'block';
+            
+            document.getElementById('disp_name').textContent = USER_DATA[val].name;
+            document.getElementById('disp_id').textContent = val;
+            document.getElementById('disp_plat').textContent = USER_DATA[val].platform;
+            
+            displayDate();
+            startTimer();
+            window.scrollTo(0, 0);
+        } else {
+            errorTip.style.display = 'block';
+        }
+    });
+    function displayDate() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    }
+    function startTimer() {
+        let totalSeconds = 12 * 60 * 60;
+        const timerDisplay = document.getElementById('timer');
+        const interval = setInterval(() => {
+            if (totalSeconds <= 0) { clearInterval(interval); timerDisplay.textContent = "已过期"; return; }
+            totalSeconds--;
+            let h = Math.floor(totalSeconds / 3600);
+            let m = Math.floor((totalSeconds % 3600) / 60);
+            let s = totalSeconds % 60;
+            timerDisplay.textContent = `${h.toString().padStart(2,'0')}: ${m.toString().padStart(2,'0')}: ${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+</script>
+</body>
+</html>
