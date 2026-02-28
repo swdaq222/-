@@ -54,13 +54,13 @@
 
     <div id="search_box">
         <div class="search-title">请输入身份证号后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：5953" maxlength="4">
+        <input type="tel" id="id_input" placeholder="示例：3572" maxlength="4">
         <button id="search_btn" class="btn-primary">立即查询处理进度</button>
         <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">
             ⚠️ 查询不到该信息，请核对后重试或联系老师
         </p>
         <div style="margin-top: 50px; padding: 0 15px; text-align: left;">
-            <p style="color:#2c52a1; font-weight:700;">协商顾问：刘老师</p>
+            <p style="color:#2c52a1; font-weight:700;">协商顾问：刘老师 周老师</p>
             <p style="color:#2c52a1; font-weight:700;">协商团队老师：李老师，陈老师，汪老师</p>
             <p style="color:#2c52a1; font-weight:700;">法务主任：刘主任</p>
             <p style="color:#4a72c9; font-weight:600; font-size:16px; margin-top:30px;">感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233</p>
@@ -119,8 +119,9 @@
 
 <script>
     const USER_DATA = {
-        "5953": { "name": "王*明", "platform": "某某分期 / 支付宝借呗" },
-        "1234": { "name": "张*华", "platform": "中信银行信用卡" }
+        "6789": { "name": "王先生", "platform": "分期乐 美团 支付宝借呗" },
+        "0815": { "name": "张海彬", "platform": "民生银行信用卡" },
+        "9876": { "name": "刘文远", "platform": "中信银行信用卡 好分期 信贷:平安普惠 大地保险 车主贷" }
     };
 
     // 智能返回逻辑
