@@ -3,185 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>平台进度查询系统</title>
+    <title>武汉云启正律咨询有限公司 | 债务重组与法律咨询专家</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background-color: #fff; min-height: 100vh; padding-bottom: 50px; }
-        .header { background-color: #f0f4ff; padding: 15px 20px; color: #3b71e8; font-weight: bold; font-size: 18px; text-align: center; border-bottom: 1px solid #e0e7ff; }
-        
-        /* 首页查询区域 */
-        #search_box { padding: 60px 20px; text-align: center; }
-        .search-title { font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #3b71e8; }
-        input { width: 80%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 18px; margin-bottom: 20px; text-align: center; outline: none; background: #fdfdfd; }
-        button { width: 85%; padding: 15px; background-color: #3b71e8; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(59,113,232,0.3); cursor: pointer; }
-
-        /* 首页团队信息样式 */
-        .home-team-info { margin-top: 50px; padding: 0 15px; }
-        .home-team-info p { 
-            margin: 12px 0; 
-            color: #2c52a1; 
-            font-size: 18px; 
-            font-weight: 700; 
-            letter-spacing: 0.5px;
+        :root {
+            --primary-color: #1a365d; /* 深邃的商务蓝 */
+            --secondary-color: #c5a975; /* 稳重的香槟金 */
+            --text-color: #333333;
+            --bg-light: #f8fafc;
         }
-        .thanks-msg { 
-            margin-top: 30px !important; 
-            color: #4a72c9 !important; 
-            font-weight: 600 !important;
-            font-size: 16px !important;
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            color: var(--text-color);
             line-height: 1.6;
         }
 
-        /* 结果页区域 */
-        #result_page { display: none; }
-        .user-info { padding: 25px 20px; line-height: 2.2; font-size: 16px; }
-        .info-item { margin-bottom: 5px; display: flex; align-items: flex-start; }
-        .label { color: #666; min-width: 100px; }
-        .value { font-weight: bold; color: #000; flex: 1; }
-        .verify-status { padding: 10px 20px; font-size: 14px; color: #28a745; font-weight: bold; display: flex; align-items: center; }
-        .verify-status::before { content: '●'; margin-right: 8px; }
+        /* 导航栏 */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
 
-        .divider { height: 10px; background-color: #f8f9fa; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        .track-section { padding: 20px; }
-        .track-title { color: #888; font-size: 15px; margin-bottom: 25px; }
-        .timeline { position: relative; padding-left: 45px; }
-        .timeline::before { content: ''; position: absolute; left: 14px; top: 10px; bottom: 40px; border-left: 1px dotted #ccc; }
-        
-        .step { position: relative; margin-bottom: 35px; }
-        .step-icon { position: absolute; left: -45px; top: 0; width: 30px; height: 30px; text-align: center; font-size: 22px; z-index: 2; }
-        .step-content h3 { margin: 0; font-size: 17px; font-weight: bold; color: #000; }
-        .step-content p { margin: 4px 0 0; font-size: 14px; color: #777; line-height: 1.5; }
-        
-        .step.pending { opacity: 0.4; }
-        .warning { padding: 25px 20px; color: #e54d42; font-size: 14px; font-weight: bold; line-height: 1.6; }
-        .footer-timer { text-align: right; padding: 0 20px 40px; color: #e54d42; font-family: "Courier New", Courier, monospace; }
-        .date-str { font-size: 18px; font-weight: bold; display: block; margin-bottom: 4px; }
-        .countdown-str { font-size: 18px; font-weight: bold; }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 30px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* 首屏横幅 */
+        .hero {
+            background: linear-gradient(rgba(26, 54, 93, 0.85), rgba(26, 54, 93, 0.85)), url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80') center/cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            padding: 0 20px;
+            margin-top: 60px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--secondary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #b09562;
+        }
+
+        /* 核心业务板块 */
+        .services {
+            padding: 80px 20px;
+            background-color: var(--bg-light);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 50px;
+        }
+
+        .services-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s;
+            border-top: 4px solid var(--secondary-color);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        /* 关于我们 */
+        .about {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-text h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .about-text p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none; /* 移动端暂时隐藏导航链接，可后续添加汉堡菜单 */
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .about {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">平台进度查询系统</div>
-
-    <div id="search_box">
-        <div class="search-title">请输入案件后四位</div>
-        <input type="tel" id="id_input" placeholder="示例：1234" maxlength="4">
-        <button id="search_btn">立即查询处理进度</button>
-        <p id="error_tip" style="color: #e54d42; font-size: 14px; margin-top: 15px; display: none; font-weight: bold;">⚠️ 查询不到该信息，请核对后重试或联系老师</p>
-
-        <div class="home-team-info">
-            <p>协商顾问：刘老师</p>
-            <p>协商团队老师：李老师，陈老师，汪老师</p>
-            <p>法务主任：刘主任</p>
-            <p class="thanks-msg">
-                感谢您的信任，如有任何问题可在协商群咨询或联系顾问微信Miluman233
-            </p>
-        </div>
-    </div>
-
-    <div id="result_page">
-        <div class="user-info">
-            <div class="info-item"><span class="label">委托人：</span><span class="value" id="disp_name"></span></div>
-            <div class="info-item"><span class="label">委托人验证：</span><span class="value">身份证后四位 (<span id="disp_id"></span>)</span></div>
-            <div class="info-item"><span class="label">处理平台：</span><span class="value" id="disp_plat"></span></div>
-        </div>
-        <div class="verify-status">身份核验通过，正在显示处理进度</div>
-        
-        <div class="divider"></div>
-
-        <div class="track-section">
-            <div class="track-title">处理轨迹</div>
-            <div class="timeline">
-                <div class="step">
-                    <div class="step-icon">📤</div>
-                    <div class="step-content"><h3>提交完成</h3><p>(已核查客户信息属实本人处理协商欠款)</p></div>
-                </div>
-                <div class="step">
-                    <div class="step-icon">📋</div>
-                    <div class="step-content"><h3>核算完成</h3><p>(已对接所有负债平台核查具体欠款金额)</p></div>
-                </div>
-                <div class="step">
-                    <div class="step-icon">⏩</div>
-                    <div class="step-content"><h3>处理完成</h3><p>(方案已出，委托方交付协商处理尾款，达成方案生
-效，方案具有当天时效性，方案过期视为自动放弃处理，恶意套取协商机制，永久不接受二次协商商)</p></div>
-                </div>
-                <div class="step pending">
-                    <div class="step-icon">✈️</div>
-                    <div class="step-content"><h3>结案完成</h3><p>(回复结案老师开始生效，后续服务维护到委托方结
-清协商平台欠款终止)</p></div>
-                </div>
+    <header>
+        <div class="nav-container">
+            <div class="logo">云启正律</div>
+            <div class="nav-links">
+                <a href="#home">首页</a>
+                <a href="#services">核心业务</a>
+                <a href="#about">关于我们</a>
+                <a href="#contact">联系咨询</a>
             </div>
         </div>
+    </header>
 
-        <div class="warning">温馨提示：方案具有协商时效性，12小时内需支付尾款回复平台，到期自动失效。</div>
-        <div class="footer-timer">
-            <span class="date-str" id="currentDate"></span>
-            <span class="countdown-str">倒计时：<span id="timer">12: 00: 00</span></span>
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>专业化解债务危机，护航企业稳健前行</h1>
+            <p>我们专注于高品质的债务重组与法律咨询服务，为您的商业资产与个人信用提供定制化解决方案。</p>
+            <a href="#contact" class="btn">立即免费咨询</a>
         </div>
-    </div>
-</div>
+    </section>
 
-<script>
-    // 页面加载完成后绑定点击事件，提高稳定性
-    document.getElementById('search_btn').addEventListener('click', async function() {
-        const val = document.getElementById('id_input').value.trim();
-        const errorTip = document.getElementById('error_tip');
-        
-        if (val.length !== 4) { alert("请输入身份证后4位"); return; }
+    <section id="services" class="services">
+        <h2 class="section-title">核心业务领域</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>债务重组</h3>
+                <p>提供专业的逾期债务规划、停息挂账方案设计，有效缓解资金流压力，避免法律风险扩大。</p>
+            </div>
+            <div class="service-card">
+                <h3>法律咨询</h3>
+                <p>由资深法务团队提供从合同审查到纠纷应对的全方位法律支持，保障您的合法权益不受侵害。</p>
+            </div>
+            <div class="service-card">
+                <h3>商务谈判</h3>
+                <p>代理客户与金融机构、债权方进行深度磋商，以专业的金融策略争取最优的结清与展期方案。</p>
+            </div>
+        </div>
+    </section>
 
-        try {
-            // 加入随机参数防止缓存
-            const response = await fetch('./data.json?t=' + Date.now());
-            if (!response.ok) throw new Error("File not found");
-            const data = await response.json();
-            
-            if (data[val]) {
-                errorTip.style.display = 'none';
-                document.getElementById('search_box').style.display = 'none';
-                document.getElementById('result_page').style.display = 'block';
-                
-                document.getElementById('disp_id').innerText = val;
-                document.getElementById('disp_name').innerText = data[val].name;
-                document.getElementById('disp_plat').innerText = data[val].plat;
-                
-                startTimer(val);
-            } else {
-                errorTip.style.display = 'block';
-                document.getElementById('id_input').value = '';
-            }
-        } catch (e) {
-            console.error(e);
-            alert("加载数据失败，请确认 data.json 文件是否存在。");
-        }
-    });
+    <section id="about" class="about">
+        <div class="about-text">
+            <h2>8年金融行业深耕经验</h2>
+            <p>武汉云启正律咨询有限公司拥有一支由资深法务总监与精英谈判顾问组成的专业交付团队。我们深知深陷债务泥潭的痛点，致力于用最合法、合规、高效的方式解决复杂难题。</p>
+            <p>凭借在金融领域的深厚积淀以及对数字化工具的高效运用，我们能够为每一位客户提供精准透明、进度可控的专属咨询服务。</p>
+        </div>
+    </section>
 
-    function startTimer(u_id) {
-        const key = 'yq_timer_' + u_id;
-        const total = 12 * 60 * 60 * 1000;
-        let start = localStorage.getItem(key);
-        if (!start) { start = Date.now(); localStorage.setItem(key, start); }
-        
-        function update() {
-            const left = total - (Date.now() - start);
-            if (left <= 0) { document.getElementById('timer').innerText = "00: 00: 00"; return; }
-            const h = Math.floor(left / 3600000);
-            const m = Math.floor((left % 3600000) / 60000);
-            const s = Math.floor((left % 60000) / 1000);
-            document.getElementById('timer').innerText = `${String(h).padStart(2,'0')}: ${String(m).padStart(2,'0')}: ${String(s).padStart(2,'0')}`;
-        }
-        update();
-        setInterval(update, 1000);
-    }
-
-    const d = new Date();
-    document.getElementById('currentDate').innerText = d.getFullYear() + "年" + String(d.getMonth()+1).padStart(2,'0') + "月" + String(d.getDate()).padStart(2,'0') + "日";
-</script>
+    <footer id="contact">
+        <p>&copy; 2026 武汉云启正律咨询有限公司. 保留所有权利。</p>
+        <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">官方网站: yqshangan.cn | 提供全方位合规咨询</p>
+    </footer>
 
 </body>
 </html>
-
-
-
-
