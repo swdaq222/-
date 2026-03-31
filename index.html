@@ -34,7 +34,9 @@
         }
         .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; }
         
-        /* 中部导航菜单 */
+        .header-right { display: flex; align-items: center; }
+
+        /* 中部导航菜单 (电脑端) */
         .main-nav ul { list-style: none; display: flex; gap: 2.5rem; align-items: center; margin: 0; }
         .main-nav a { font-weight: 500; padding: 0.5rem 0; transition: color 0.3s; font-size: 1rem; }
         .main-nav a:hover { color: var(--accent-color); }
@@ -57,7 +59,6 @@
             padding: 0.5rem 0;
             z-index: 200;
         }
-        /* 悬浮显示二级菜单 */
         .has-dropdown:hover .dropdown { opacity: 1; visibility: visible; margin-top: 5px; }
         
         .dropdown li { width: 100%; list-style: none; }
@@ -73,8 +74,11 @@
         .dropdown a:last-child { border-bottom: none; }
         .dropdown a:hover { background-color: #f8f9fa; color: var(--secondary-color); font-weight: bold; }
 
-        .contact-btn { background-color: var(--accent-color); color: var(--primary-color); padding: 0.5rem 1.2rem; border-radius: 4px; font-weight: bold; font-size: 0.9rem; transition: opacity 0.3s; }
+        .contact-btn { background-color: var(--accent-color); color: var(--primary-color); padding: 0.5rem 1.2rem; border-radius: 4px; font-weight: bold; font-size: 0.9rem; transition: opacity 0.3s; margin-left: 2rem; }
         .contact-btn:hover { opacity: 0.9; }
+
+        /* 手机端菜单开关 */
+        .menu-toggle { display: none; font-size: 1.8rem; cursor: pointer; margin-left: 15px; color: var(--text-light); line-height: 1; }
 
         /* 首屏视觉区 */
         .hero { background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: var(--text-light); text-align: center; padding: 6rem 2rem; }
@@ -108,17 +112,56 @@
         /* 底部信息 */
         footer { background-color: var(--primary-color); color: #9ca3af; padding: 4rem 5% 2rem; text-align: center; }
         .footer-content { max-width: 800px; margin: 0 auto; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2rem; margin-bottom: 2rem; }
-        .wechat-box { background: rgba(255,255,255,0.05); display: inline-block; padding: 1.5rem 3rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .wechat-box { background: rgba(255,255,255,0.05); display: inline-block; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; min-width: 300px; }
         .wechat-box p { margin-bottom: 0.5rem; font-size: 1.1rem; color: var(--text-light); }
+        
+        /* 微信与一键复制按钮样式 */
+        .wechat-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; }
         .wechat-id { font-size: 2rem; font-weight: bold; color: var(--accent-color); letter-spacing: 1px; }
+        .copy-btn { background-color: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: all 0.3s; outline: none; }
+        .copy-btn:hover { background-color: var(--accent-color); color: var(--primary-color); }
+
         .copyright { font-size: 0.9rem; }
 
-        /* 响应式调整 */
+        /* 响应式调整 (手机端专属样式) */
         @media (max-width: 850px) {
             .hero h1 { font-size: 2rem; }
             .hero h2 { font-size: 1rem; }
             .services-grid { flex-direction: column; }
-            .main-nav { display: none; /* 移动端默认隐藏中间菜单，保证排版整洁 */ }
+            
+            /* 手机端导航菜单控制 */
+            .menu-toggle { display: block; }
+            .contact-btn { margin-left: 0; padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+            
+            .main-nav { 
+                position: absolute; 
+                top: 100%; 
+                left: 0; 
+                width: 100%; 
+                background-color: var(--primary-color); 
+                box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+                display: none; /* 默认隐藏，通过JS控制显示 */
+            }
+            .main-nav.active { display: block; }
+            
+            .main-nav ul { flex-direction: column; gap: 0; padding: 1rem 0; }
+            .main-nav a { display: block; padding: 1rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            
+            /* 手机端二级菜单展开显示 */
+            .has-dropdown { padding-bottom: 0; margin-bottom: 0; }
+            .dropdown { 
+                position: static; 
+                transform: none; 
+                background-color: rgba(255,255,255,0.05); 
+                box-shadow: none; 
+                opacity: 1; 
+                visibility: visible; 
+                min-width: 100%; 
+                margin-top: 0;
+                display: block;
+            }
+            .dropdown a { color: var(--accent-color); font-size: 0.9rem; border-bottom: none; }
+            .wechat-container { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
@@ -127,20 +170,23 @@
     <header>
         <div class="logo">云启正律</div>
         
-        <nav class="main-nav">
-            <ul>
-                <li><a href="#">首页</a></li>
-                <li><a href="#services">核心业务</a></li>
-                <li class="has-dropdown">
-                    <a href="javascript:void(0)">客户中心 ▾</a>
-                    <ul class="dropdown">
-                        <li><a href="http://47.99.110.182" target="_blank">委托客户申请进度查询</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
+        <div class="header-right">
+            <nav class="main-nav" id="mobileNav">
+                <ul>
+                    <li><a href="#" onclick="closeMenu()">首页</a></li>
+                    <li><a href="#services" onclick="closeMenu()">核心业务</a></li>
+                    <li class="has-dropdown">
+                        <a href="javascript:void(0)">客户中心 ▾</a>
+                        <ul class="dropdown">
+                            <li><a href="http://47.99.110.182" target="_blank" onclick="closeMenu()">委托客户申请进度查询</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
 
-        <a href="#contact" class="contact-btn">获取方案</a>
+            <a href="#contact" class="contact-btn">获取方案</a>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        </div>
     </header>
 
     <section class="hero">
@@ -208,8 +254,11 @@
         <div class="footer-content">
             <div class="wechat-box">
                 <p>添加官方首席咨询微信</p>
-                <div class="wechat-id">Miluman233</div>
-                <p style="font-size: 0.85rem; margin-top: 10px; color: #9ca3af;">（添加时请备注：债务咨询）</p>
+                <div class="wechat-container">
+                    <span class="wechat-id" id="wechatID">Miluman233</span>
+                    <button class="copy-btn" onclick="copyWechat()">一键复制</button>
+                </div>
+                <p style="font-size: 0.85rem; margin-top: 15px; color: #9ca3af;">（添加时请备注：债务咨询）</p>
             </div>
             <p style="margin-bottom: 10px;">武汉云启正律咨询有限公司</p>
             <p>专注于债务重组、财务咨询及商务谈判</p>
@@ -219,5 +268,44 @@
         </div>
     </footer>
 
+    <script>
+        // 控制手机端菜单的展开与收起
+        function toggleMenu() {
+            var nav = document.getElementById("mobileNav");
+            nav.classList.toggle("active");
+        }
+
+        // 点击菜单项后自动收起菜单（提升手机端体验）
+        function closeMenu() {
+            var nav = document.getElementById("mobileNav");
+            if(nav.classList.contains("active")) {
+                nav.classList.remove("active");
+            }
+        }
+
+        // 一键复制微信号功能
+        function copyWechat() {
+            var wechatText = document.getElementById("wechatID").innerText;
+            // 创建一个临时的 input 元素来执行复制操作
+            var tempInput = document.createElement("input");
+            tempInput.value = wechatText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            
+            try {
+                var successful = document.execCommand('copy');
+                if(successful) {
+                    alert('微信号复制成功！请打开微信添加好友。');
+                } else {
+                    alert('复制失败，请手动长按微信号复制。');
+                }
+            } catch (err) {
+                alert('您的浏览器不支持一键复制，请手动长按复制。');
+            }
+            
+            // 移除临时元素
+            document.body.removeChild(tempInput);
+        }
+    </script>
 </body>
 </html>
